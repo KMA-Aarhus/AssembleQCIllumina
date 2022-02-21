@@ -1,25 +1,26 @@
 # AssembleQC
 Input: Paired reads.
-Output:
-- QC report
-- Taxonomic analysis
-- Genome Assembly
-- Genome annotation
-##Installation
-Requires conda and snakemake to run.
-https://docs.conda.io/en/latest/miniconda.html
-https://snakemake.readthedocs.io/en/stable/
-###Install with git
+Output:  
+- QC report. 
+- Taxonomic analysis. 
+- Genome Assembly. 
+- Genome annotation. 
+## Installation. 
+Requires conda and snakemake to run.  
+https://docs.conda.io/en/latest/miniconda.html. 
+https://snakemake.readthedocs.io/en/stable/. 
+### Install with git
 ```
 git clone https://github.com/KMA-Aarhus/AssembleQC.git
 ```
-##How to run
+## How to run
 Set up an alias for snakemake to run on slurm:
 ```
 alias snakeslurm='mkdir -p logs/old; mv logs/*.{err,out} logs/old 2> /dev/null; snakemake --profile configs/slurm --use-conda --conda-frontend mamba'
 ```
+Navigate to AssemblyQC directory where the snakefile is.  
 Currently, all fastq files to analyze must be placed in the same directory. Alternatively, additional analysis can be started.
-###To run 
+### To run 
 ```
 snakeslurm --config raw_uploads_dir="path_to_fastq_files" trimmed="n"
 Replace "path_to_fastq_files" with the path to the raw data.
