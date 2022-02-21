@@ -1,0 +1,8 @@
+# General settings 
+raw_uploads_dir: "raw_reads" # Defines where the raw uploads are placed.
+#clean_uploads_dir: "../BACKUP/nanopore_sarscov2/pappenheim_clean/older/testdir" # Defines where the "clean" uploads from the pappenheim (workstation) pipeline are placed.
+
+out_base: "output" # defines the main output directory
+sample_reads: 5000000
+option: ""
+kraken2_db: "/project/ClinicalMicrobio/faststorage/database/kraken2_20210423"
