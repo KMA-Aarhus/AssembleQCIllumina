@@ -1,5 +1,5 @@
 # AssembleQC
-Input: Paired reads.
+Input: Paired reads.    
 Output:  
 - QC report. 
 - Taxonomic analysis. 
