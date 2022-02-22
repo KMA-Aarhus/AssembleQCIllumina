@@ -39,7 +39,8 @@ Output can be found in the specified output directory. Output contains:
 * A multi-qc report for all samples
 * One folder per sample.
   * "sample_name"_consensus.fasta: assembled and polished genome
-  * "sample_name".gff: genome annotations
+  * "sample_name"_consensus.gff: genome annotations
+  * "sample_name"_consensus.gbk: annotated genome in genbank format
   * "sample_name"_assembly-stats.tab.gff: assembly statistics
   * "sample_name"_kraken2_reads_report.txt: the output from kraken2. The same information can be found in the multi-qc report.
   * Addtional output for debugging can be found in:
