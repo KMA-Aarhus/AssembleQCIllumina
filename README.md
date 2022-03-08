@@ -36,7 +36,7 @@ kraken2_db # Location of the kraken2 database. Default="/project/ClinicalMicrobi
 
 ### Output
 Output can be found in the specified output directory. Output contains:
-* A multi-qc report for all samples
+* A multi-qc report for all samples. The report contains read assembly statistics, taxonomic analysis, genome coverage and more.
 * One folder per sample.
   * "sample_name"_consensus.fasta: assembled and polished genome
   * "sample_name"_consensus.gff: genome annotations
