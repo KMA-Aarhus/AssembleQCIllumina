@@ -6,3 +6,4 @@ out_base: "output" # defines the main output directory
 sample_reads: 5000000
 option: ""
 kraken2_db: "/project/ClinicalMicrobio/faststorage/database/kraken2_20210423"
+trimmed: "n"
