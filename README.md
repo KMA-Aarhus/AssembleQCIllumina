@@ -20,11 +20,15 @@ alias snakeslurm='mkdir -p logs/old; mv logs/*.{err,out} logs/old 2> /dev/null; 
 ```
 Navigate to AssemblyQC directory where the snakefile is.  
 Currently, all fastq files to analyze must be placed in the same directory. Alternatively, additional analysis can be started.
+
+## DAG of the workflow
+![dag](https://user-images.githubusercontent.com/90172976/165511187-222ce486-02b5-4074-b8c8-8778a2d67914.png)
+
 ### To run 
 ```
-snakeslurm --config raw_uploads_dir="path_to_fastq_files" trimmed="n"
+snakeslurm --config raw_uploads_dir="path_to_fastq_files"
 Replace "path_to_fastq_files" with the path to the raw data.
-Replace trimmed="n" with trimmed="y" if the input files are already trimmed.
+If reads are already trimmed, the trimming step can be skipped by adding trimmed="y" to the config.
 
 Additional optional options:
 out_base # defines the main output directory. Default="output"
