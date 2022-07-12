@@ -1,0 +1,18 @@
+custom_plot_config:
+  fastqc_sequence_counts_plot:
+    Sort By:
+      - Unique Reads
+    colors:
+      - "#66ff66"
+      - "#ff4dff"
+      - "#ff0000"
+  kraken-topfive-plot:
+    Sort By:
+      - Bacteria
+
+top_modules:
+  - "quast"
+  - "prokka"
+  - "cutadapt"
+  - "kraken"
+  - "fastqc"

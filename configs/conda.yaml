@@ -17,5 +17,6 @@ dependencies:
   - python = 3.8
   - bcftools = 1.14
   - multiqc = 1.12
+  - r-tidyverse 
   #- perl-bioperl = 1.7.2
 

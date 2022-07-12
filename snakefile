@@ -1,8 +1,9 @@
+configfile: "config.yaml"
 # snakemake --profile configs/slurm
 
 
 print("/*")
-__author__ = "Tine Ebsen" # Please add your name here if you make changes.
+__author__ = "Tine Ebsen, Eamon Winship" # Please add your name here if you make changes.
 __version__ = "0.3"
 
 from pathlib import Path
@@ -17,7 +18,7 @@ import sys
 print("        /\\                          | |   | |     / __ \\ / ____| KMA,AUH")
 print("       /  \\   ___ ___  ___ _ __ ___ | |__ | | ___| |  | | |      ")
 print("      / /\\ \\ / __/ __|/ _ \\ '_ ` _ \\| '_ \\| |/ _ \\ |  | | |     ")
-print("     / ____ \\__ \\__ \\  __/ | | | | | |_) | |  __/ |__| | |____  ")
+print("     / ____ \\\\__ \\__ \\  __/ | | | | | |_) | |  __/ |__| | |____  ")
 print("    /_/    \\_\\___/___/\\___|_| |_| |_|_.__/|_|\\___|\\___\\_\\_____| ")
 print(" ")
 
@@ -84,7 +85,9 @@ rule all:
                 "{out_base}/{sample_id}/{sample_id}_consensus.gff", \
                 "{out_base}/{sample_id}/{sample_id}_consensus.gbk", \
                 "{out_base}/{sample_id}/plasmidfinder/{sample_id}_data.json", \
-                "{out_base}/multiqc_report.html" \
+                "{out_base}/{sample_id}/{sample_id}.depth",\
+                "{out_base}/{sample_id}_coverage_mqc.jpg",\
+                "{out_base}/multiqc_report.html"\
                 ], \
                 
                out_base = out_base, sample_id = df["sample_id"])
@@ -272,6 +275,21 @@ else:
             cp {out_base}/{wildcards.sample_id}/assembly/assembly.fasta {output.contigs}   
             
             """
+    rule bwa_map: #Need this for the depth graph - EW
+        input:
+            R1 = "{out_base}/{sample_id}/sampled/{sample_id}_R1_sampled.fq.gz",
+            R2 = "{out_base}/{sample_id}/sampled/{sample_id}_R2_sampled.fq.gz",
+            contigs = "{out_base}/{sample_id}/{sample_id}_consensus.fasta"
+        output:
+            "{out_base}/{sample_id}/mapped_reads/{sample_id}.bam"
+        conda: "configs/conda.yaml"
+        threads: 8
+        shell: """
+            bwa index {input.contigs}
+            bwa mem {input.contigs} {input.R1} {input.R2} -t 8 | samtools sort > {output}
+            samtools index {output}
+
+            """
 rule plasmidfinder:
     input: 
         "{out_base}/{sample_id}/{sample_id}_consensus.fasta" 
@@ -318,6 +336,19 @@ rule annotate_genes:
         cp {out_base}/{wildcards.sample_id}/prokka/{wildcards.sample_id}.gbk {output.gbk}
 
         """
+rule make_depth_graph:
+    input:
+       "{out_base}/{sample_id}/mapped_reads/{sample_id}.bam"
+    output:
+       depth = "{out_base}/{sample_id}/{sample_id}.depth",
+       graph = "{out_base}/{sample_id}_coverage_mqc.jpg"
+    conda: "configs/conda.yaml"
+    threads: 1
+    shell: """
+       samtools depth -a {input} -o {output.depth}
+       Rscript scripts/graph_coverage.R {output.depth} {output.graph}
+    """ 
+
 
 rule multiqc:
     input:
@@ -327,7 +358,7 @@ rule multiqc:
     conda: "configs/qc.yaml"
     threads: 1
     shell: """
-        multiqc -d {out_base} -o {out_base}
+        multiqc --config configs/multiqc.yaml -d {out_base} -o {out_base}
 
         """
 

@@ -1,0 +1,10 @@
+name: qc
+channels:
+  - bioconda
+  - conda-forge
+  - mamba
+dependencies:
+  - quast = 5.0.2
+  - qualimap
+  - multiqc = 1.12
+
