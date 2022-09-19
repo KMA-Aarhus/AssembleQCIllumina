@@ -22,7 +22,7 @@ Navigate to AssemblyQC directory where the snakefile is.
 Currently, all fastq files to analyze must be placed in the same directory. Alternatively, additional analysis can be started.
 
 ## DAG of the workflow
-![dag](https://user-images.githubusercontent.com/90172976/165511187-222ce486-02b5-4074-b8c8-8778a2d67914.png)
+![assembleqcdag](https://user-images.githubusercontent.com/90172976/191003509-1b0824fc-4f74-4719-a4f9-9f8b43f058c6.png)
 
 ### To run 
 ```
