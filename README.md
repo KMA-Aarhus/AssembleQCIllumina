@@ -26,7 +26,7 @@ Currently, all fastq files to analyze must be placed in the same directory. Alte
 
 ### To run 
 ```
-snakeslurm --config raw_uploads_dir="path_to_fastq_files"
+snakeslurm --config rundir="path_to_fastq_files"
 Replace "path_to_fastq_files" with the path to the raw data.
 If reads are already trimmed, the trimming step can be skipped by adding trimmed="y" to the config.
 
