@@ -133,7 +133,7 @@ else:
         shell: """
         mkdir -p {out_base}/{wildcards.sample_id}/trimmed
 
-        trim_galore --paired --gzip --cores 4 --basename {wildcards.sample_id} --fastqc -o {out_base}/{wildcards.sample_id}/trimmed  {input.R1} {input.R2} --length 100 --quality 25
+        trim_galore --paired --gzip --cores {threads} --basename {wildcards.sample_id} --fastqc -o {out_base}/{wildcards.sample_id}/trimmed  {input.R1} {input.R2} --length 100 --quality 25
             
         """
 ## The data I have seen thus far already have UMIs as part of their name:
@@ -170,7 +170,7 @@ rule kraken2:
     conda: "configs/conda.yaml"
     shell: """
 
-        kraken2 --db {kraken2_db} --report {output} --threads 8 --paired {input.R1} {input.R2}
+        kraken2 --db {kraken2_db} --report {output} --threads {threads} --paired {input.R1} {input.R2}
         
     """
 if config['option'] == 'UMI':
@@ -189,7 +189,7 @@ if config['option'] == 'UMI':
 
             mkdir -p {out_base}/{wildcards.sample_id}/assembly
 
-            unicycler --min_fasta_length 500 -1 {input.R1} -2 {input.R2} -o {out_base}/{wildcards.sample_id}/assembly --no_pilon --threads 8
+            unicycler --min_fasta_length 500 -1 {input.R1} -2 {input.R2} -o {out_base}/{wildcards.sample_id}/assembly --no_pilon --threads {threads}
             cp {out_base}/{wildcards.sample_id}/assembly/assembly.fasta {output.contigs}
             assembly-stats -t {output.contigs} > {output.assembly_stats}        
             
@@ -208,7 +208,7 @@ if config['option'] == 'UMI':
         threads: 8
         shell: """
             bwa index {input.contigs}
-            bwa mem {input.contigs} {input.R1} {input.R2} -t 8 | samtools sort > {output}
+            bwa mem {input.contigs} {input.R1} {input.R2} -t {threads} | samtools sort > {output}
             samtools index {output}
 
             """
@@ -252,7 +252,7 @@ if config['option'] == 'UMI':
         threads: 4
         shell: """
 
-            qualimap bamqc -bam {input} -nt 4 -outdir {out_base}/{wildcards.sample_id}/
+            qualimap bamqc -bam {input} -nt {threads} -outdir {out_base}/{wildcards.sample_id}/
 
 
             """
@@ -271,7 +271,7 @@ else:
 
             mkdir -p {out_base}/{wildcards.sample_id}/assembly
 
-            unicycler --min_fasta_length 500 -1 {input.R1} -2 {input.R2} -o {out_base}/{wildcards.sample_id}/assembly --threads 8
+            unicycler --min_fasta_length 500 -1 {input.R1} -2 {input.R2} -o {out_base}/{wildcards.sample_id}/assembly --threads {threads}
             cp {out_base}/{wildcards.sample_id}/assembly/assembly.fasta {output.contigs}   
             
             """
@@ -286,7 +286,7 @@ else:
         threads: 8
         shell: """
             bwa index {input.contigs}
-            bwa mem {input.contigs} {input.R1} {input.R2} -t 8 | samtools sort > {output}
+            bwa mem {input.contigs} {input.R1} {input.R2} -t {threads} | samtools sort > {output}
             samtools index {output}
 
             """
@@ -331,7 +331,7 @@ rule annotate_genes:
     threads: 8
     shell: """
         mkdir -p {out_base}/{wildcards.sample_id}/prokka
-        prokka --outdir {out_base}/{wildcards.sample_id}/prokka --cpu 8 --force --prefix {wildcards.sample_id} {input}
+        prokka --outdir {out_base}/{wildcards.sample_id}/prokka --cpu {threads} --force --prefix {wildcards.sample_id} {input}
         cp {out_base}/{wildcards.sample_id}/prokka/{wildcards.sample_id}.gff {output.gff}
         cp {out_base}/{wildcards.sample_id}/prokka/{wildcards.sample_id}.gbk {output.gbk}
 
