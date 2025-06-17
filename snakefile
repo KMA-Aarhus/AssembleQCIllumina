@@ -1,3 +1,5 @@
+## NOTE: This hasn't been run for a long time
+
 configfile: "config.yaml"
 # snakemake --profile configs/slurm
 
@@ -23,14 +25,11 @@ print("    /_/    \\_\\___/___/\\___|_| |_| |_|_.__/|_|\\___|\\___\\_\\_____| ")
 print(" ")
 
 
-# Field variables, which might make sense to set from a config file.
-#clean_uploads_dir = "../BACKUP/nanopore_sarscov2/pappenheim_clean"
-#clean_uploads_dir = "../BACKUP/nanopore_sarscov2/pappenheim_clean/testdir"
+
 print(config)
 out_base = config["out_base"]
 sample_reads = config["sample_reads"]
 
-# Set the directory where clean uploads are deposited from the pappenheim workstation pipeline:
 in_base = Path(config["rundir"])
 kraken2_db = config["kraken2_db"]
 plasmidfinder_db = config["plasmidfinder_db"]
@@ -42,12 +41,12 @@ trimmed = config["trimmed"]
 
 print("Parsing input directories from", in_base, file = sys.stderr)
 files = sorted([str(f) for f in in_base.iterdir() if not f.is_dir()])
-#print(files)
+
 if "L00" in files[0] or "L00" in files[1]:
     samples = [s.split("_L001_R1", 1)[0] for s in files if "L001_R1" in s]
 else:
     samples = [s.split("_R1", 1)[0] for s in files if "R1" in s]
-#print(samples)
+
 # Cat multilane files
 R1 = []
 R2 = []
@@ -56,7 +55,6 @@ for samplename in samples:
     all_sample_files_R2 = [str(s) for s in files if ("R2" in s) and (samplename in s)]
     if not os.path.isfile(samplename + "_R1_001.fastq.gz"):
         command = "cat " + " ".join(all_sample_files_R1) + " > "  + samplename + "_R1_001.fastq.gz"
-        #print(command)
         os.system(command)
     R1.append(samplename + "_R1_001.fastq.gz")
     if not os.path.isfile(samplename + "_R2_001.fastq.gz"):
@@ -65,11 +63,7 @@ for samplename in samples:
         os.system(command)
     R2.append(samplename + "_R2_001.fastq.gz")
 
-#R1 = [s for s in files if "R1" in s]
-#R2 = [s for s in files if "R2" in s]
 
-
-#df = pd.DataFrame(files, columns = ["filename"])
 df = pd.DataFrame(list(zip([s.replace(str(in_base)+"/","") for s in samples], R1, R2)), columns = ["sample_id", "R1", "R2"])
 print(df)
 
@@ -100,6 +94,7 @@ rule all:
 # Setup for data analysis #
 ####################
 
+# Trims if data is not already trimmed. Else just copies. Did it this way to ensure snakemake got the same output.
 if config['trimmed'] == "y":
         # Trim adapters
     rule trim_adapt:
@@ -136,8 +131,7 @@ else:
         trim_galore --paired --gzip --cores {threads} --basename {wildcards.sample_id} --fastqc -o {out_base}/{wildcards.sample_id}/trimmed  {input.R1} {input.R2} --length 100 --quality 25
             
         """
-## The data I have seen thus far already have UMIs as part of their name:
-# @A00606:487:H75CJDSX3:1:1622:10529:12493:AACCACACA 1:N:0:GATCCATG+CAACTCCA where "AACCACACA" is the UMI
+
 
 # Downsample to an easier-to-handle number of reads
 # TODO: Sample size should be replaced with custom values ####
@@ -173,6 +167,10 @@ rule kraken2:
         kraken2 --db {kraken2_db} --report {output} --threads {threads} --paired {input.R1} {input.R2}
         
     """
+
+## The data I have seen thus far already have UMIs as part of their name:
+# @A00606:487:H75CJDSX3:1:1622:10529:12493:AACCACACA 1:N:0:GATCCATG+CAACTCCA where "AACCACACA" is the UMI
+# This may not be the case for all
 if config['option'] == 'UMI':
 
     # Assembly using unicycler
@@ -213,8 +211,7 @@ if config['option'] == 'UMI':
 
             """
 
-    ## The data I have seen thus far already have UMIs as part of their name:
-    # @A00606:487:H75CJDSX3:1:1622:10529:12493:AACCACACA 1:N:0:GATCCATG+CAACTCCA where "AACCACACA" is the UMI        
+    # Deduplicates     
     rule umi_tools:
         input:
             "{out_base}/{sample_id}/mapped_reads/{sample_id}.bam"
@@ -275,7 +272,8 @@ else:
             cp {out_base}/{wildcards.sample_id}/assembly/assembly.fasta {output.contigs}   
             
             """
-    rule bwa_map: #Need this for the depth graph - EW
+#Need this for the depth graph
+    rule bwa_map: 
         input:
             R1 = "{out_base}/{sample_id}/sampled/{sample_id}_R1_sampled.fq.gz",
             R2 = "{out_base}/{sample_id}/sampled/{sample_id}_R2_sampled.fq.gz",
